@@ -117,7 +117,7 @@ class FloatingPanelCore: NSObject, UIGestureRecognizerDelegate {
             case (let from, let to):
                 animator = behavior.moveAnimator(vc, from: from, to: to)
             }
-
+            animator.isInterruptible = false
             animator.addAnimations { [weak self] in
                 guard let `self` = self else { return }
 
@@ -132,6 +132,7 @@ class FloatingPanelCore: NSObject, UIGestureRecognizerDelegate {
                 } else {
                     self.lockScrollView()
                 }
+                self.tearDownActiveInteraction(true)
                 completion?()
             }
             self.animator = animator
@@ -144,6 +145,7 @@ class FloatingPanelCore: NSObject, UIGestureRecognizerDelegate {
             } else {
                 self.lockScrollView()
             }
+            self.tearDownActiveInteraction(true)
             completion?()
         }
     }
@@ -741,10 +743,11 @@ class FloatingPanelCore: NSObject, UIGestureRecognizerDelegate {
         layoutAdapter.endInteraction(at: targetPosition)
     }
 
-    private func tearDownActiveInteraction() {
+    private func tearDownActiveInteraction(_ isEnabled: Bool = false) {
         // Cancel the pan gesture so that panningEnd(with:velocity:) is called
-        panGestureRecognizer.isEnabled = false
-        panGestureRecognizer.isEnabled = true
+        panGestureRecognizer.isEnabled = isEnabled
+        scrollView?.isUserInteractionEnabled = isEnabled
+        viewcontroller?.contentViewController?.view.isUserInteractionEnabled = isEnabled
     }
 
     private func startAnimation(to targetPosition: FloatingPanelPosition, at distance: CGFloat, with velocity: CGPoint) {
