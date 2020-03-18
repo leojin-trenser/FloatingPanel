@@ -792,6 +792,7 @@ class FloatingPanelCore: NSObject, UIGestureRecognizerDelegate {
     private func endAnimation(_ finished: Bool) {
         self.isDecelerating = false
         self.animator = nil
+        self.tearDownActiveInteraction(true)
 
         if let vc = viewcontroller {
             vc.delegate?.floatingPanelDidEndDecelerating(vc)
